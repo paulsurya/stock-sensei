@@ -1,4 +1,4 @@
-# 📈 Stock Market Trend Classifier
+# 📈 Stock Sensei
 
 A machine learning web app that predicts whether a stock will trend **Up or Down** using technical indicators — powered by XGBoost, yfinance, and Flask.
 
