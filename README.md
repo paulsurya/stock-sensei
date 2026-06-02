@@ -2,8 +2,6 @@
 
 A machine learning web app that predicts whether a stock will trend **Up or Down** using technical indicators — powered by XGBoost, yfinance, and Flask.
 
----
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -11,13 +9,9 @@ A machine learning web app that predicts whether a stock will trend **Up or Down
 - [Tech Stack](#tech-stack)
 - [How to Contribute](#how-to-contribute)
 
----
-
 ## Overview
 
 Enter any stock ticker (e.g. `TCS.NS`, `INFY.NS`, `AAPL`) and get an instant Up/Down trend prediction with a live price chart and model confidence score. The model is trained on RSI, MACD, and Moving Average features and backtested on held-out data before serving predictions through a clean Flask interface.
-
----
 
 ## Features
 
@@ -28,8 +22,6 @@ Enter any stock ticker (e.g. `TCS.NS`, `INFY.NS`, `AAPL`) and get an instant Up/
 - 📈 Interactive price chart rendered in the browser
 - 🗃 SQLite logging of every prediction request
 
----
-
 ## Tech Stack
 
 | Layer | Technology |
@@ -38,8 +30,6 @@ Enter any stock ticker (e.g. `TCS.NS`, `INFY.NS`, `AAPL`) and get an instant Up/
 | ML | `xgboost`, `scikit-learn` |
 | Backend | `Python 3.11+`, `Flask`, `SQLite` |
 | Frontend | `HTML5`, `CSS3`, `JavaScript` |
-
----
 
 ## How to Contribute
 
