@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict — Stock Sensei</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">Stock<span>Sensei</span></div>
+        <ul>
+<ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/predict">Predict</a></li>
+    <li><a href="/history">History</a></li>
+</ul>
+    </nav>
+
+    <div class="section">
+        <h2>Enter Technical Indicators</h2>
+        <p>Fill in the values below to get a Buy or Sell signal for tomorrow</p>
+
+        <div class="form-container">
+            <form action="/predict" method="POST">
+
+                <div class="form-group">
+                    <label>RSI (Relative Strength Index)</label>
+                    <input type="number" step="0.01" name="rsi" placeholder="e.g. 45.0" required>
+                    <small>Range: 0 to 100. Below 30 = oversold, Above 70 = overbought</small>
+                </div>
+
+                <div class="form-group">
+                    <label>MA Cross (5-day SMA minus 20-day SMA)</label>
+                    <input type="number" step="0.01" name="ma_cross" placeholder="e.g. -2.5" required>
+                    <small>Positive = bullish trend, Negative = bearish trend</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Volatility (14-day Rolling Std Dev)</label>
+                    <input type="number" step="0.01" name="volatility" placeholder="e.g. 12.3" required>
+                    <small>Higher value = more price movement recently</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Volume Ratio (Today's Volume / 20-day Avg)</label>
+                    <input type="number" step="0.01" name="volume_ratio" placeholder="e.g. 1.1" required>
+                    <small>Above 1.0 = higher than average volume</small>
+                </div>
+
+                <div class="form-group">
+                    <label>VWAP Diff (Close minus VWAP)</label>
+                    <input type="number" step="0.01" name="vwap_diff" placeholder="e.g. -0.5" required>
+                    <small>Positive = price above VWAP, Negative = price below VWAP</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Daily Range (High minus Low)</label>
+                    <input type="number" step="0.01" name="daily_range" placeholder="e.g. 8.0" required>
+                    <small>Width of today's candle in price units</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Delivery % (Percentage of Deliverable Trades)</label>
+                    <input type="number" step="0.01" name="delivery_pct" placeholder="e.g. 0.45" required>
+                    <small>Range: 0.0 to 1.0</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Get Signal →</button>
+                <a href="/" class="btn btn-outline" style="color:#1B2A4A; border-color:#1B2A4A;">Cancel</a>
+
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 <span>Stock Sensei</span> · Built by Paul Surya P · InnoTrack 2025</p>
+    </footer>
+
+</body>
+
+</html>
