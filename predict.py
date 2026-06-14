@@ -1,8 +1,18 @@
 import joblib
 import pandas as pd
+import os
+
+_model = None
+
+def _load_model():
+    global _model
+    if _model is None:
+        path = os.path.join(os.path.dirname(__file__), 'models', 'final_model.pkl')
+        _model = joblib.load(path)
+    return _model
 
 def predict(inputs: dict) -> dict:
-    model = joblib.load('./models/final_model.pkl')
+    model = _load_model()
     input_df = pd.DataFrame([inputs])
     prediction = model.predict(input_df)[0]
     probability = model.predict_proba(input_df)[0]

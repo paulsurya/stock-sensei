@@ -1,0 +1,156 @@
+{% extends "layout.html" %}
+{% block title %}Live Dashboard — Stock Sensei{% endblock %}
+{% block content %}
+<section class="section section-wide">
+    <div class="section-header section-header-row">
+        <div>
+            <span class="section-label">Real-Time</span>
+            <h2>Live Dashboard</h2>
+            <p class="section-desc">Prices auto-refresh every 25s. Add any yfinance ticker to your watchlist.</p>
+        </div>
+        <div class="watchlist-controls">
+            <span id="live-dot" class="live-dot"></span>
+            <span id="live-label" class="live-label">LIVE</span>
+            <input type="text" id="add-ticker-input" class="ticker-input" placeholder="SYMBOL.NS" autocomplete="off">
+            <button onclick="addTicker()" class="btn btn-primary btn-sm">+ Add</button>
+        </div>
+    </div>
+
+    <div id="dashboard-grid" class="dashboard-grid">
+        {% for t in tickers %}
+        <div class="ticker-card" id="card-{{ t.ticker.replace('.', '_') }}" data-ticker="{{ t.ticker }}">
+            <div class="ticker-head">
+                <span class="ticker-symbol">{{ t.ticker }}</span>
+                <button class="ticker-remove" onclick="removeTicker('{{ t.ticker }}')" title="Remove">&times;</button>
+            </div>
+
+            {% if t.live %}
+            <div class="ticker-price-row">
+                <span class="ticker-price">{{ t.live.ltp }}</span>
+                <span class="ticker-change {% if t.live.change_pct >= 0 %}up{% else %}down{% endif %}">
+                    {{ "%+.2f"|format(t.live.change) }} ({{ "%+.2f"|format(t.live.change_pct) }}%)
+                </span>
+            </div>
+            <div class="ticker-stats">
+                <span>H: {{ t.live.high }}</span>
+                <span>L: {{ t.live.low }}</span>
+                <span>Vol: {{ t.live.volume }}</span>
+            </div>
+            {% else %}
+            <div class="ticker-price-row">
+                <span class="ticker-na">No live data</span>
+            </div>
+            {% endif %}
+
+            {% if t.prediction %}
+            <div class="ticker-prediction">
+                <div class="ticker-signal {{ 'buy' if t.prediction.signal == 'Buy' else 'sell' }}">
+                    {{ '▲' if t.prediction.signal == 'Buy' else '▼' }} {{ t.prediction.signal }}
+                </div>
+                <div class="ticker-meta">
+                    <span class="ticker-conf">{{ t.prediction.confidence }}</span>
+                    <span class="ticker-strength">{{ t.prediction.strength }}</span>
+                </div>
+            </div>
+            {% else %}
+            <div class="ticker-prediction">
+                <span class="ticker-na">Fetching prediction…</span>
+            </div>
+            {% endif %}
+
+            {% if t.features %}
+            <details class="ticker-features">
+                <summary>Indicators</summary>
+                <div class="feat-grid">
+                    {% for f in features_list %}
+                    <div class="feat-row">
+                        <span class="feat-label">{{ f|replace('_', ' ') }}</span>
+                        <span class="feat-value">{{ "%.2f"|format(t.features[f]) }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </details>
+            {% endif %}
+
+            <div class="ticker-foot">
+                <span class="ticker-ts" id="ts-{{ t.ticker.replace('.', '_') }}"></span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<script>
+    const POLL_MS = 25000;
+
+    function tickerId(t) { return t.replace(/\./g, '_'); }
+
+    function updateCard(ticker, data) {
+        const card = document.getElementById('card-' + tickerId(ticker));
+        if (!card) return;
+
+        if (data.live) {
+            card.querySelector('.ticker-price').textContent = data.live.ltp;
+            const ch = card.querySelector('.ticker-change');
+            ch.textContent = (data.live.change >= 0 ? '+' : '') + data.live.change.toFixed(2) +
+                ' (' + (data.live.change_pct >= 0 ? '+' : '') + data.live.change_pct.toFixed(2) + '%)';
+            ch.className = 'ticker-change ' + (data.live.change_pct >= 0 ? 'up' : 'down');
+            const st = card.querySelector('.ticker-stats');
+            if (st) st.innerHTML = '<span>H: ' + data.live.high + '</span><span>L: ' + data.live.low + '</span><span>Vol: ' + data.live.volume + '</span>';
+        }
+
+        if (data.prediction) {
+            const sig = card.querySelector('.ticker-signal');
+            if (sig) {
+                const isBuy = data.prediction.signal === 'Buy';
+                sig.className = 'ticker-signal ' + (isBuy ? 'buy' : 'sell');
+                sig.innerHTML = (isBuy ? '▲' : '▼') + ' ' + data.prediction.signal;
+            }
+            const meta = card.querySelector('.ticker-meta');
+            if (meta) {
+                meta.querySelector('.ticker-conf').textContent = data.prediction.confidence;
+                meta.querySelector('.ticker-strength').textContent = data.prediction.strength;
+            }
+        }
+
+        const ts = document.getElementById('ts-' + tickerId(ticker));
+        if (ts) ts.textContent = new Date().toLocaleTimeString();
+    }
+
+    function refreshOne(ticker) {
+        fetch('/api/refresh?ticker=' + encodeURIComponent(ticker))
+            .then(r => r.json())
+            .then(d => { if (!d.error) updateCard(ticker, d); })
+            .catch(() => {});
+    }
+
+    let tickers = [];
+    document.addEventListener('DOMContentLoaded', () => {
+        tickers = Array.from(document.querySelectorAll('.ticker-card')).map(c => c.dataset.ticker);
+        tickers.forEach(refreshOne);
+        setInterval(() => tickers.forEach(refreshOne), POLL_MS);
+    });
+
+    function addTicker() {
+        const input = document.getElementById('add-ticker-input');
+        const t = input.value.trim().toUpperCase();
+        if (!t) return;
+        fetch('/api/watchlist/add', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ticker: t})
+        }).then(r => r.json()).then(d => { if (d.watchlist) location.reload(); });
+    }
+
+    function removeTicker(t) {
+        if (!confirm('Remove ' + t + ' from watchlist?')) return;
+        fetch('/api/watchlist/remove', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ticker: t})
+        }).then(r => r.json()).then(d => { if (d.watchlist) location.reload(); });
+    }
+
+    document.getElementById('add-ticker-input').addEventListener('keydown', e => { if (e.key === 'Enter') addTicker(); });
+</script>
+{% endblock %}

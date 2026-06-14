@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+cache/historical/*_daily.csv
+cache/live/
+predictions.db
+watchlist.json

@@ -1,87 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Result — Stock Sensei</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-
-<body>
-
-    <nav>
-        <div class="logo">Stock<span>Sensei</span></div>
-<ul>
-    <li><a href="/">Home</a></li>
-    <li><a href="/predict">Predict</a></li>
-    <li><a href="/history">History</a></li>
-</ul>
-    </nav>
-
-    <div class="section">
-        <h2>Prediction Result</h2>
-        <p>Based on the technical indicators you entered</p>
-
-        <div class="result-box">
-
-            <p style="color:#777; font-size:14px;">Tomorrow's Signal</p>
-
-            {% if result.signal == 'Buy' %}
-            <div class="signal-buy">📈 {{ result.signal }}</div>
-            {% else %}
-            <div class="signal-sell">📉 {{ result.signal }}</div>
-            {% endif %}
-
-            <p class="confidence">Confidence: <strong>{{ result.confidence }}</strong></p>
-            <p class="strength">{{ result.strength }}</p>
-
-            <div class="advice">
-                💡 {{ result.advice }}
-            </div>
-
-            <table class="metrics-table">
-                <tr>
-                    <td>RSI</td>
-                    <td>{{ inputs.rsi }}</td>
-                </tr>
-                <tr>
-                    <td>MA Cross</td>
-                    <td>{{ inputs.ma_cross }}</td>
-                </tr>
-                <tr>
-                    <td>Volatility</td>
-                    <td>{{ inputs.volatility }}</td>
-                </tr>
-                <tr>
-                    <td>Volume Ratio</td>
-                    <td>{{ inputs.volume_ratio }}</td>
-                </tr>
-                <tr>
-                    <td>VWAP Diff</td>
-                    <td>{{ inputs.vwap_diff }}</td>
-                </tr>
-                <tr>
-                    <td>Daily Range</td>
-                    <td>{{ inputs.daily_range }}</td>
-                </tr>
-                <tr>
-                    <td>Delivery %</td>
-                    <td>{{ inputs.delivery_pct }}</td>
-                </tr>
-            </table>
-
-            <br>
-            <a href="/predict" class="btn btn-primary">Try Another →</a>
-            <a href="/" class="btn btn-outline" style="color:#1B2A4A; border-color:#1B2A4A;">Home</a>
-
-        </div>
+{% extends "layout.html" %}
+{% block title %}Result — Stock Sensei{% endblock %}
+{% block content %}
+<section class="section section-narrow">
+    <div class="section-header">
+        <span class="section-label">Prediction Result</span>
+        <h2>Tomorrow's Signal</h2>
+        <p class="section-desc">Based on the technical indicators you entered.</p>
     </div>
 
-    <footer>
-        <p>© 2025 <span>Stock Sensei</span> · Built by Paul Surya P · InnoTrack 2025</p>
-    </footer>
+    <div class="result-card">
+        <div class="result-signal">
+            {% if result.signal == 'Buy' %}
+            <div class="signal-display signal-buy">
+                <span class="signal-icon">&#9650;</span>
+                <span class="signal-text">Buy</span>
+            </div>
+            {% else %}
+            <div class="signal-display signal-sell">
+                <span class="signal-icon">&#9660;</span>
+                <span class="signal-text">Sell / Stay Out</span>
+            </div>
+            {% endif %}
+        </div>
 
-</body>
+        <div class="result-meta">
+            <div class="meta-item">
+                <span class="meta-label">Confidence</span>
+                <span class="meta-value">{{ result.confidence }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Strength</span>
+                <span class="meta-value strength-badge">{{ result.strength }}</span>
+            </div>
+        </div>
 
-</html>
+        <div class="result-advice">
+            {{ result.advice }}
+        </div>
+
+        <details class="result-details">
+            <summary>Input Values</summary>
+            <div class="input-summary">
+                {% for key, val in inputs.items() %}
+                <div class="input-row">
+                    <span class="input-label">{{ key|replace('_', ' ') }}</span>
+                    <span class="input-value">{{ val }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </details>
+
+        <div class="result-actions">
+            <a href="/predict" class="btn btn-primary">Try Another</a>
+            <a href="/" class="btn btn-ghost">Home</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,83 +1,104 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Sensei</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-
-<body>
-
-    <nav>
-        <div class="logo">Stock<span>Sensei</span></div>
-<ul>
-    <li><a href="/">Home</a></li>
-    <li><a href="/predict">Predict</a></li>
-    <li><a href="/history">History</a></li>
-</ul>
-    </nav>
-
-    <div class="hero">
-        <h1>Stock Market <span>Trend Classifier</span></h1>
-        <p>Enter technical indicators and get an instant Buy or Sell signal powered by XGBoost</p>
-        <a href="/predict" class="btn btn-primary">Get Signal</a>
-        <a href="#about" class="btn btn-outline">Learn More</a>
+{% extends "layout.html" %}
+{% block title %}Stock Sensei — ML-Powered Stock Predictions{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+        <div class="hero-badge">v2.0 &middot; XGBoost Classifier</div>
+        <h1 class="hero-title">Stock Market <span class="text-accent">Trend Prediction</span></h1>
+        <p class="hero-sub">Enter technical indicators or track live tickers — get an instant Buy/Sell signal powered by machine learning.</p>
+        <div class="hero-actions">
+            <a href="/dashboard" class="btn btn-primary">Live Dashboard</a>
+            <a href="/predict" class="btn btn-outline">Manual Predict</a>
+        </div>
     </div>
+</section>
 
-    <div class="section" id="about">
-        <h2>What is Stock Sensei?</h2>
-        <p>A machine learning powered tool that predicts next-day stock movement using technical indicators</p>
-        <div class="cards">
-            <div class="card">
-                <h3>📈 XGBoost Model</h3>
-                <p>Trained on 470,000+ rows of NSE historical data across multiple stocks.</p>
+<section class="section">
+    <div class="section-header">
+        <span class="section-label">Capabilities</span>
+        <h2>What Stock Sensei Does</h2>
+    </div>
+    <div class="grid-3">
+        <div class="pane">
+            <div class="pane-icon pulse-glow">&#9889;</div>
+            <h3>Real-Time Tracking</h3>
+            <p>Track any stock from NSE, BSE, or global exchanges. Auto-refreshes every 25 seconds with rate-limited yfinance fetching.</p>
+        </div>
+        <div class="pane">
+            <div class="pane-icon pulse-glow">&#129302;</div>
+            <h3>XGBoost Classifier</h3>
+            <p>Binary classifier trained on 470K+ NSE rows. Predicts next-day direction using 7 technical indicators.</p>
+        </div>
+        <div class="pane">
+            <div class="pane-icon pulse-glow">&#128202;</div>
+            <h3>7 Technical Indicators</h3>
+            <p>RSI, MA Cross, Volatility, Volume Ratio, VWAP Diff, Daily Range, and Delivery % — computed from OHLCV data.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="section-header">
+        <span class="section-label">Performance</span>
+        <h2>Model Metrics</h2>
+    </div>
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <span class="metric-value">XGBoost</span>
+            <span class="metric-label">Algorithm</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-value">470K+</span>
+            <span class="metric-label">Training Rows</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-value">0.53</span>
+            <span class="metric-label">Weighted F1</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-value">50.2%</span>
+            <span class="metric-label">Backtest Hit Rate</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-value">75:25</span>
+            <span class="metric-label">Class Balance (Sell/Buy)</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-value">7</span>
+            <span class="metric-label">Indicators</span>
+        </div>
+    </div>
+    <p class="metrics-note">The model is intentionally conservative — it favors Sell signals to avoid false Buy entries. Hit rate is measured on unseen test data.</p>
+</section>
+
+<section class="section">
+    <div class="section-header">
+        <span class="section-label">Getting Started</span>
+        <h2>How to Use</h2>
+    </div>
+    <div class="steps">
+        <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+                <h3>Open the Live Dashboard</h3>
+                <p>View real-time prices and predictions for your watchlist. Add any ticker (e.g. <code>RELIANCE.NS</code>, <code>AAPL</code>).</p>
             </div>
-            <div class="card">
-                <h3>⚡ Instant Signal</h3>
-                <p>Get a Buy or Sell signal with confidence score in under a second.</p>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+                <h3>Manual Predictions</h3>
+                <p>Enter indicator values by hand to test hypothetical scenarios or override auto-computed features.</p>
             </div>
-            <div class="card">
-                <h3>📊 7 Indicators</h3>
-                <p>Uses RSI, MA Cross, Volatility, Volume Ratio, VWAP Diff, Daily Range and Delivery %.</p>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+                <h3>Review History</h3>
+                <p>All past predictions are stored in SQLite with their inputs, signals, and confidence scores.</p>
             </div>
         </div>
     </div>
-
-    <div class="section">
-        <h2>Model Performance</h2>
-        <p>Honest metrics from backtesting on unseen data</p>
-        <div class="card" style="max-width: 100%;">
-            <table class="metrics-table">
-                <tr>
-                    <td>Algorithm</td>
-                    <td>XGBoost Classifier</td>
-                </tr>
-                <tr>
-                    <td>Dataset</td>
-                    <td>NSE Historical OHLCV · 470,000+ rows</td>
-                </tr>
-                <tr>
-                    <td>F1 Score (weighted)</td>
-                    <td>0.5326</td>
-                </tr>
-                <tr>
-                    <td>Backtest Hit Rate</td>
-                    <td>50.2%</td>
-                </tr>
-                <tr>
-                    <td>Class Balance</td>
-                    <td>75% Sell / 25% Buy</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <footer>
-        <p>© 2025 <span>Stock Sensei</span> · Built by Paul Surya P · InnoTrack 2025</p>
-    </footer>
-
-</body>
-
-</html>
+</section>
+{% endblock %}

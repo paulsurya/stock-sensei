@@ -1,46 +1,79 @@
-# 📈 Stock Sensei
+# Stock Sensei
 
-A machine learning web app that predicts whether a stock will trend **Up or Down** using technical indicators — powered by XGBoost, yfinance, and Flask.
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [How to Contribute](#how-to-contribute)
-
-## Overview
-
-Enter any stock ticker (e.g. `TCS.NS`, `INFY.NS`, `AAPL`) and get an instant Up/Down trend prediction with a live price chart and model confidence score. The model is trained on RSI, MACD, and Moving Average features and backtested on held-out data before serving predictions through a clean Flask interface.
+A machine learning web app that predicts stock direction (Up/Down) using 7 technical indicators — powered by XGBoost, yfinance, and Flask.
 
 ## Features
 
-- 📡 Live stock data fetched via `yfinance` — no API key required
-- 🔬 Technical indicators: RSI, MACD, SMA-20, SMA-50, EMA-20
-- 🤖 XGBoost binary classifier with backtested accuracy
-- 💾 Model persisted as `.pkl` — no retraining on each request
-- 📈 Interactive price chart rendered in the browser
-- 🗃 SQLite logging of every prediction request
+- **Live Dashboard** — Track real-time prices and model predictions for a configurable watchlist. Auto-refreshes every 25 seconds via JS polling.
+- **Rate-Limited Data Fetching** — Calls yfinance once every 20–30 seconds per ticker to avoid API throttling.
+- **7 Technical Indicators** — RSI(14), MA Cross (SMA5 − SMA20), Volatility (14d σ), Volume Ratio (vs 20d avg), VWAP Diff, Daily Range, and Delivery % (heuristic).
+- **XGBoost Classifier** — Binary classifier trained on 470K+ NSE rows. Backtested hit rate ~50% with a conservative Sell bias.
+- **Manual Predict Form** — Enter indicator values by hand to test hypothetical scenarios.
+- **Prediction Logging** — Every prediction is stored in SQLite with full inputs and results.
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Data | `yfinance`, `pandas`, `numpy` |
-| ML | `xgboost`, `scikit-learn` |
-| Backend | `Python 3.11+`, `Flask`, `SQLite` |
-| Frontend | `HTML5`, `CSS3`, `JavaScript` |
+| Data | yfinance, pandas, numpy |
+| ML | xgboost, scikit-learn |
+| Backend | Python 3.11+, Flask, SQLite, joblib |
+| Frontend | HTML5, CSS3 (custom design system), Vanilla JS |
 
-## How to Contribute
+## Project Structure
 
-1. Fork the repository
-2. Create a feature branch — `git checkout -b feature/your-feature`
-3. Make your changes and commit — `git commit -m "add: your feature"`
-4. Push to your branch — `git push origin feature/your-feature`
-5. Open a Pull Request and describe what you changed
+```
+stock-sensei/
+├── app.py                  # Flask routes (predict, dashboard, history, API)
+├── model.py                # Feature engineering (7 technical indicators)
+├── predict.py              # Model loader + prediction wrapper
+├── dataFetcher.py          # Rate-limited yfinance fetcher (historical + intraday)
+├── train.py                # Training script (XGBClassifier)
+├── requirements.txt
+├── models/
+│   └── final_model.pkl     # Pre-trained XGBoost classifier
+├── templates/
+│   ├── layout.html         # Base template (nav + footer)
+│   ├── index.html          # Landing / overview page
+│   ├── dashboard.html      # Live ticker dashboard with auto-refresh
+│   ├── predict.html        # Manual indicator input form
+│   ├── result.html         # Prediction result display
+│   └── history.html        # Past predictions table
+├── static/CSS/
+│   └── style.css           # Complete dark-theme design system
+├── cache/
+│   ├── historical/         # Daily OHLCV CSVs (auto-downloaded)
+│   └── live/               # Intraday CSVs (auto-downloaded)
+├── predictions.db          # SQLite prediction log
+└── watchlist.json          # User's tracked tickers
+```
 
-Please keep PRs focused and small. For large changes, open an issue first to discuss the approach.
+## Getting Started
+
+```bash
+pip install -r requirements.txt
+python app.py
+```
+
+Open http://127.0.0.1:5000
+
+- `/dashboard` — Live watchlist with auto-refreshing prices + predictions
+- `/predict` — Manual indicator entry form
+- `/history` — All past predictions
+
+## API Endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/refresh?ticker=X` | Fetch fresh data + prediction for a ticker (JSON) |
+| GET | `/api/watchlist` | Get current watchlist |
+| POST | `/api/watchlist/add` | Add ticker to watchlist `{"ticker": "AAPL"}` |
+| POST | `/api/watchlist/remove` | Remove ticker `{"ticker": "AAPL"}` |
+
+## License
+
+MIT
 
 ---
 
-> Built by [paulsurya](https://github.com/paulsurya) · This project is for educational purposes only and does not constitute financial advice.
+> Built by [Paul Surya P](https://github.com/paulsurya) · This project is for educational purposes only and does not constitute financial advice.

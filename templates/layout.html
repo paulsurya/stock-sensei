@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Stock Sensei{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="/" class="logo">Stock<span>Sensei</span></a>
+            <ul class="nav-links">
+                <li><a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}">Overview</a></li>
+                <li><a href="/dashboard" class="nav-item {% if request.path == '/dashboard' %}active{% endif %}">Live</a></li>
+                <li><a href="/predict" class="nav-item {% if request.path == '/predict' %}active{% endif %}">Predict</a></li>
+                <li><a href="/history" class="nav-item {% if request.path == '/history' %}active{% endif %}">History</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span>&copy; 2025 <strong>Stock Sensei</strong></span>
+            <span>Built by Paul Surya P &middot; InnoTrack 2025</span>
+            <span class="footer-muted">For educational purposes only</span>
+        </div>
+    </footer>
+</body>
+</html>
