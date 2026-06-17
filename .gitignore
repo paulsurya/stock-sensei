@@ -4,3 +4,8 @@ cache/historical/*_daily.csv
 cache/live/
 predictions.db
 watchlist.json
+.venv/
+venv/
+*.pyo
+env/
+.env
